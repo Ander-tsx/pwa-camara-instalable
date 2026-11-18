@@ -1,4 +1,4 @@
-const CACHE_STATIC_NAME = 'static-camara-v1';
+const CACHE_STATIC_NAME = 'static-camara-v2';
 const STATIC_FILES = [
   './index.html',
   './styles.css',
@@ -15,6 +15,20 @@ self.addEventListener('install', (event) => {
       console.log('[SW] Precacheando App Shell...');
       return cache.addAll(STATIC_FILES);
     })
+  );
+  self.skipWaiting();
+});
+
+// Activación: borrar cachés de versiones anteriores
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((nombres) => {
+      return Promise.all(
+        nombres
+          .filter((nombre) => nombre !== CACHE_STATIC_NAME)
+          .map((nombre) => caches.delete(nombre))
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
